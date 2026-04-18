@@ -24,7 +24,7 @@ public class OAuthController {
     public ResponseEntity<?> signup(@PathVariable("socialType") String social, @RequestParam("code") String code,
                                    HttpServletResponse response) throws JsonProcessingException {
         LoginResponse loginResponse = oAuthService.signUp(social, code);
-        CookieUtil.setCookieRefreshToken(response, loginResponse.getRefreshToken());
+        CookieUtil.setTokenCookies(response, loginResponse.getRefreshToken(), loginResponse.getDeviceId());
 
         return new ResponseEntity<>(Response.create(SUCCESS_SIGNUP, loginResponse), SUCCESS_SIGNUP.getHttpStatus());
     }
@@ -33,7 +33,7 @@ public class OAuthController {
     public ResponseEntity<?> login(@PathVariable("socialType") String social, @RequestParam("code") String code,
                                    HttpServletResponse response) throws JsonProcessingException {
         LoginResponse loginResponse = oAuthService.login(social, code);
-        CookieUtil.setCookieRefreshToken(response, loginResponse.getRefreshToken());
+        CookieUtil.setTokenCookies(response, loginResponse.getRefreshToken(), loginResponse.getDeviceId());
 
         return new ResponseEntity<>(Response.create(SUCCESS_LOGIN, loginResponse), SUCCESS_LOGIN.getHttpStatus());
     }

@@ -1,26 +1,20 @@
 package com.sosim.server.jwt.domain.entity;
 
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
-@RedisHash("refreshToken")
-@Builder(access = AccessLevel.PRIVATE)
+@Builder
 public class RefreshToken {
 
-    @Id
     private Long userId;
-
-    @Indexed
+    private String deviceId;
     private String refreshToken;
 
-    public static RefreshToken create(Long userId, String refreshToken) {
+    public static RefreshToken create(Long userId, String deviceId, String refreshToken) {
         return RefreshToken.builder()
                 .userId(userId)
+                .deviceId(deviceId)
                 .refreshToken(refreshToken)
                 .build();
     }

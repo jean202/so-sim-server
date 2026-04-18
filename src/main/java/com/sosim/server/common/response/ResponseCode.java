@@ -61,6 +61,7 @@ public enum ResponseCode {
     MODULATION_ACCESS(1203, HttpStatus.UNAUTHORIZED, "변조된 엑세스 토큰입니다."),
     EXPIRATION_ACCESS(1204, HttpStatus.UNAUTHORIZED, "만료된 엑세스 토큰입니다."),
     NOT_EXIST_TOKEN(1205, HttpStatus.FORBIDDEN, "엑세스 토큰이 존재하지 않습니다."),
+    EXPIRATION_REFRESH(1206, HttpStatus.UNAUTHORIZED, "만료된 리프레시 토큰입니다."),
 
     NOT_FOUND_USER(1100, HttpStatus.NOT_FOUND, "존재하지 않는 회원 정보입니다."),
     USER_ALREADY_EXIST(1101, HttpStatus.BAD_REQUEST, "이미 존재하는 회원 정보입니다."),

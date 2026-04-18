@@ -13,7 +13,8 @@ import java.util.Optional;
 public class CookieUtil {
 
     private static final String SET_COOKIE = "Set-Cookie";
-    private static final String REFRESH_HEADER = "RefreshToken";
+    private static final String REFRESH_COOKIE = "RefreshToken";
+    private static final String DEVICE_ID_COOKIE = "deviceId";
 
     private static Long refreshExpiration;
     private static String domain;
@@ -28,40 +29,59 @@ public class CookieUtil {
         CookieUtil.domain = domain;
     }
 
+    public static void setTokenCookies(HttpServletResponse response, String refreshToken, String deviceId) {
+        setCookie(REFRESH_COOKIE, refreshToken, refreshExpiration / 1000, response);
+        setCookie(DEVICE_ID_COOKIE, deviceId, refreshExpiration / 1000, response);
+    }
+
     public static void setCookieRefreshToken(HttpServletResponse response, String refreshToken) {
-        setCookie(refreshToken, refreshExpiration / 1000, response);
+        setCookie(REFRESH_COOKIE, refreshToken, refreshExpiration / 1000, response);
     }
 
     public static void deleteRefreshToken(HttpServletResponse response) {
-        setCookie("", 0, response);
+        deleteTokenCookies(response);
+    }
+
+    public static void deleteTokenCookies(HttpServletResponse response) {
+        setCookie(REFRESH_COOKIE, "", 0, response);
+        setCookie(DEVICE_ID_COOKIE, "", 0, response);
     }
 
     public static String getRefreshToken(HttpServletRequest request) {
-        Optional<Cookie[]> cookiesOp = Optional.of(request.getCookies());
+        Optional<Cookie[]> cookiesOp = Optional.ofNullable(request.getCookies());
         return cookiesOp
-                .map(CookieUtil::findRefreshTokenInCookies)
+                .map(cookies -> findCookieValue(cookies, REFRESH_COOKIE))
                 .orElse(null);
     }
 
-    private static String findRefreshTokenInCookies(Cookie[] cookies) {
+    public static String getDeviceId(HttpServletRequest request) {
+        Optional<Cookie[]> cookiesOp = Optional.ofNullable(request.getCookies());
+        return cookiesOp
+                .map(cookies -> findCookieValue(cookies, DEVICE_ID_COOKIE))
+                .orElse(null);
+    }
+
+    private static String findCookieValue(Cookie[] cookies, String name) {
         for (Cookie cookie : cookies) {
-            if (cookie != null && REFRESH_HEADER.equals(cookie.getName())) {
+            if (cookie != null && name.equals(cookie.getName())) {
                 return cookie.getValue();
             }
         }
         return null;
     }
 
-    private static void setCookie(String value, long maxAge, HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from(REFRESH_HEADER, value)
+    private static void setCookie(String name, String value, long maxAge, HttpServletResponse response) {
+        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(name, value)
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
                 .maxAge(maxAge)
-                .domain(domain)
-                .path("/")
-                .build();
+                .path("/");
 
-        response.addHeader(SET_COOKIE, cookie.toString());
+        if (domain != null && !domain.isBlank()) {
+            cookieBuilder.domain(domain);
+        }
+
+        response.addHeader(SET_COOKIE, cookieBuilder.build().toString());
     }
 }

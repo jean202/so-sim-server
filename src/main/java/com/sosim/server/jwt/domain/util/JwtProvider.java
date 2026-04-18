@@ -18,18 +18,16 @@ public class JwtProvider {
     @Value("${jwt.refresh.key}")
     private String refreshKey;
 
-    public boolean checkRenewRefreshToken(String refreshToken) {
-        try {
-            getClaims(refreshKey, refreshToken, true);
-        } catch (CustomException e) {
-            if (e.getResponseCode().equals(EXPIRATION_ACCESS)) return true;
-            else throw e;
-        }
-        return false;
-    }
-
     public Long getUserId(String accessToken) {
         return Long.valueOf(getClaims(accessKey, accessToken, false).getSubject());
+    }
+
+    public Long getRefreshUserId(String refreshToken) {
+        return Long.valueOf(getClaims(refreshKey, refreshToken, true).getSubject());
+    }
+
+    public void validateRefreshToken(String refreshToken) {
+        getClaims(refreshKey, refreshToken, true);
     }
 
     private Claims getClaims(String key, String token, boolean isRefresh) {
@@ -38,12 +36,15 @@ public class JwtProvider {
                     .setSigningKey(key.getBytes(StandardCharsets.UTF_8))
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (SignatureException | MalformedJwtException | MissingClaimException ex) {
+        } catch (SignatureException | MalformedJwtException | MissingClaimException | IllegalArgumentException ex) {
             if (isRefresh) {
                 throw new CustomException(MODULATION_REFRESH);
             }
             throw new CustomException(MODULATION_ACCESS);
         } catch (ExpiredJwtException ex) {
+            if (isRefresh) {
+                throw new CustomException(EXPIRATION_REFRESH);
+            }
             throw new CustomException(EXPIRATION_ACCESS);
         }
     }

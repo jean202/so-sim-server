@@ -15,10 +15,14 @@ public class JwtResponse {
     @JsonIgnore
     private String refreshToken;
 
-    public static JwtResponse create(String accessToken, String refreshToken) {
+    @JsonIgnore
+    private String deviceId;
+
+    public static JwtResponse create(String accessToken, String refreshToken, String deviceId) {
         return JwtResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .deviceId(deviceId)
                 .build();
     }
 }

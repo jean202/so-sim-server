@@ -48,9 +48,11 @@ public class JwtFactory {
                 .compact();
     }
 
-    public String createRefreshToken(){
+    public String createRefreshToken(Long userId){
+        Claims claims = Jwts.claims().setSubject(userId.toString());
         Date now = new Date();
         return Jwts.builder()
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshExpiration))
                 .signWith(SignatureAlgorithm.HS256, encodeRefreshKey)

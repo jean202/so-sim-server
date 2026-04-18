@@ -15,6 +15,9 @@ public class LoginResponse {
     @JsonIgnore
     private String refreshToken;
 
+    @JsonIgnore
+    private String deviceId;
+
     private long userId;
 
     private String email;
@@ -23,6 +26,7 @@ public class LoginResponse {
         return LoginResponse.builder()
                 .accessToken(jwtResponse.getAccessToken())
                 .refreshToken(jwtResponse.getRefreshToken())
+                .deviceId(jwtResponse.getDeviceId())
                 .userId(user.getId())
                 .email(user.getEmail())
                 .build();

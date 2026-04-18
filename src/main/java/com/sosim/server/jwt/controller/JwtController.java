@@ -24,16 +24,20 @@ public class JwtController {
 
     @GetMapping("/refresh")
     public ResponseEntity<?> reIssueToken(HttpServletRequest request, HttpServletResponse response) {
-        JwtResponse refresh = jwtService.refresh(CookieUtil.getRefreshToken(request));
-        CookieUtil.setCookieRefreshToken(response, refresh.getRefreshToken());
+        JwtResponse refresh = jwtService.refresh(
+                CookieUtil.getRefreshToken(request),
+                CookieUtil.getDeviceId(request)
+        );
+        CookieUtil.setTokenCookies(response, refresh.getRefreshToken(), refresh.getDeviceId());
         ResponseCode successRefresh = ResponseCode.SUCCESS_REFRESH_TOKEN;
 
         return new ResponseEntity<>(Response.create(successRefresh, refresh), successRefresh.getHttpStatus());
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        CookieUtil.deleteRefreshToken(response);
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        jwtService.deleteToken(CookieUtil.getRefreshToken(request), CookieUtil.getDeviceId(request));
+        CookieUtil.deleteTokenCookies(response);
         ResponseCode successLogout = ResponseCode.SUCCESS_LOGOUT;
 
         return new ResponseEntity<>(Response.create(successLogout, null), successLogout.getHttpStatus());
