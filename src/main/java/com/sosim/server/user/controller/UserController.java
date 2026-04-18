@@ -35,7 +35,7 @@ public class UserController {
                                           HttpServletResponse response) {
         userService.withdrawUser(userId, withdrawReason);
         jwtService.deleteToken(userId);
-        CookieUtil.deleteRefreshToken(response);
+        CookieUtil.deleteTokenCookies(response);
 
         return new ResponseEntity<>(Response.create(SUCCESS_WITHDRAW, null), SUCCESS_WITHDRAW.getHttpStatus());
     }

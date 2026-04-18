@@ -2,11 +2,11 @@ package com.sosim.server.jwt.service;
 
 import com.sosim.server.common.advice.exception.CustomException;
 import com.sosim.server.common.response.ResponseCode;
-import com.sosim.server.jwt.domain.entity.RefreshToken;
 import com.sosim.server.jwt.domain.repository.JwtRepository;
 import com.sosim.server.jwt.dto.response.JwtResponse;
 import com.sosim.server.jwt.domain.util.JwtFactory;
 import com.sosim.server.jwt.domain.util.JwtProvider;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -60,17 +60,7 @@ public class JwtService {
         }
     }
 
-    public RefreshToken getRefreshTokenInfo(String refreshToken, String deviceId) {
-        if (refreshToken == null || deviceId == null) {
-            throw new CustomException(ResponseCode.NOT_EXIST_TOKEN_COOKIE);
-        }
-
-        Long userId = jwtProvider.getRefreshUserId(refreshToken);
-        String storedToken = jwtRepository.getRefreshToken(userId, deviceId);
-        if (storedToken == null) {
-            throw new CustomException(ResponseCode.NOT_FOUNT_REFRESH);
-        }
-
-        return RefreshToken.create(userId, deviceId, storedToken);
+    public Map<Object, Object> getAllDevices(Long userId) {
+        return jwtRepository.getAllDevices(userId);
     }
 }
